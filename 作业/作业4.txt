@@ -1,0 +1,18 @@
+select employee_id, first_name, e.salary 
+from employees as e
+join (
+	select avg(salary) as salary, department_id
+	from employees 
+	group by department_id 
+) as avg
+on e.department_id = avg.department_id
+where e.salary > avg.salary;
+
+select employee_id, first_name, job_id, salary 
+from employees 
+where salary < (
+	select max(salary)
+	from employees 
+	where job_id = "IT_Prog"
+	group by job_id
+) and job_id not like "it_prog";

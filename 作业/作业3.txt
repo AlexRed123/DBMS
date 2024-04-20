@@ -1,0 +1,23 @@
+select concat(e.first_name,' ',e.last_name) as name, d.department_name, j.job_title 
+from employees as e 
+join departments as d on e.department_id = d.department_id 
+join jobs as j on e.job_id = j.job_id 
+where e.department_id = 80;
+
+select concat(e.first_name,' ',e.last_name) as name, d.department_name, j.job_title from employees as e join departments as d on e.department_id = d.department_id join jobs as j on e.job_id= j.job_id where e.department_id = 80;
+
+
+select d.department_name, floor(avg(e.salary)) as average_salary 
+from employees as e 
+right join departments as d on e.department_id = d.department_id 
+group by d.department_id 
+order by average_salary desc;
+
+select d.department_name, floor(avg(e.salary)) as average_salary from employees as e right join departments as d on e.department_id = d.department_id group by d.department_id order by average_salary desc;
+
+
+select concat(e.first_name,' ',e.last_name) as name, d.department_name, j.job_title from employees as e, departments as d, jobs as j where e.department_id = 80 and e.department_id = d.department_id and e.job_id = j.job_id;
+
+select concat(e.first_name,' ',e.last_name) as name, d.department_name, j.job_title 
+from employees as e, departments as d, jobs as j
+where e.department_id = 80 and e.department_id = d.department_id and e.job_id = j.job_id;

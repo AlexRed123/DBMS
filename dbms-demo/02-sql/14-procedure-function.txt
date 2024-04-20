@@ -1,0 +1,140 @@
+创建数据库 pf，下面的操作都在这个数据库完成
+create database pf;
+use pf;
+
+创建存储过程 all_data，查询 employees 表的所有数据，调用该存储过程，验证其功能是否正确
+delimiter $
+create procedure all_data()
+begin
+select * from employees;
+end $
+delimiter;
+call all_data();
+
+下面创建的存储过程或存储函数都需要调用和验证，不再赘述
+
+创建存储过程 avg_salary，查询 employees 表所有员工的平均工资
+DELIMITER //
+CREATE PROCEDURE avg_salary()
+BEGIN
+  SELECT AVG(salary) AS average_salary FROM employees;
+END //
+DELIMITER ;
+
+
+创建存储过程 max_salary，查询 employees 表的最高工资
+DELIMITER //
+CREATE PROCEDURE max_salary()
+BEGIN
+  SELECT MAX(salary) AS max_salary FROM employees;
+END //
+DELIMITER ;
+
+
+创建存储过程 min_salary，查询 employees 表的最低工资，并将最低工资通过参数 minSalary 输出
+DELIMITER //
+CREATE PROCEDURE min_salary(OUT minSalary DOUBLE)
+BEGIN
+  SELECT MIN(salary) INTO minSalary FROM employees;
+END //
+DELIMITER ;
+
+
+创建存储过程 get_salary_by_id，查询 employees 表某员工的工资，入口参数是 emp_id 员工编号
+DELIMITER //
+CREATE PROCEDURE get_salary_by_id(IN emp_id INT)
+BEGIN
+  SELECT salary FROM employees WHERE id = emp_id;
+END //
+DELIMITER ;
+
+
+创建存储过程 get_salary_by_name，查询 employees 表某员工的工资，入口参数是 emp_name 员工名字，出口参数是 salary 该员工的工资
+DELIMITER //
+CREATE PROCEDURE get_salary_by_name(IN emp_name VARCHAR(255), OUT salary DOUBLE)
+BEGIN
+  SELECT salary INTO salary FROM employees WHERE name = emp_name;
+END //
+DELIMITER ;
+
+
+创建存储过程 get_mgr_name，查询 employees 表中某员工领导的名字，参数 name 同时作为输入的员工名字和输出的领导名字
+DELIMITER //
+CREATE PROCEDURE get_mgr_name(INOUT name VARCHAR(255))
+BEGIN
+  SELECT manager_name INTO name FROM employees WHERE name = name;
+END //
+DELIMITER ;
+
+
+创建存储函数 avg_salary，返回 employees 表所有员工的平均工资
+DELIMITER //
+CREATE FUNCTION avg_salary() RETURNS DOUBLE
+BEGIN
+  DECLARE avgSalary DOUBLE;
+  SELECT AVG(salary) INTO avgSalary FROM employees;
+  RETURN avgSalary;
+END //
+DELIMITER ;
+
+
+创建存储函数 get_mgr_name，返回 employees 表中某员工名字的领导的名字
+DELIMITER //
+CREATE FUNCTION get_mgr_name(empName VARCHAR(255)) RETURNS VARCHAR(255)
+BEGIN
+  DECLARE mgrName VARCHAR(255);
+  SELECT manager_name INTO mgrName FROM employees WHERE name = empName;
+  RETURN mgrName;
+END //
+DELIMITER ;
+
+创建存储函数 get_count_by_dept_id，返回 employees 表某部门编号的部门员工人数
+DELIMITER //
+CREATE FUNCTION get_count_by_dept_id(deptId INT) RETURNS INT
+BEGIN
+  DECLARE countDept INT;
+  SELECT COUNT(*) INTO countDept FROM employees WHERE department_id = deptId;
+  RETURN countDept;
+END //
+DELIMITER ;
+
+查看存储过程 all_data 的代码
+SHOW CREATE PROCEDURE all_data;
+
+查看存储函数 get_count_by_dept_id 的代码
+SHOW CREATE FUNCTION get_count_by_dept_id;
+
+查看存储过程 all_data 的状态
+SHOW PROCEDURE STATUS LIKE 'all_data';
+
+查看存储函数 avg_salary 的状态
+SHOW FUNCTION STATUS LIKE 'avg_salary';
+
+查看存储过程 avg_salary 的对象信息
+SHOW PROCEDURE CODE avg_salary;
+
+查看存储函数 avg_salary 的对象信息
+SHOW FUNCTION CODE avg_salary;
+
+修改存储过程 avg_salary，添加注释，修改 sql security 为 invoker
+DROP PROCEDURE avg_salary;
+DELIMITER //
+CREATE PROCEDURE avg_salary()
+BEGIN
+  -- This procedure calculates the average salary of all employees.
+  SELECT AVG(salary) AS average_salary FROM employees;
+END //
+DELIMITER ;
+GRANT EXECUTE ON PROCEDURE pf.avg_salary TO 'your_user'@'localhost';
+
+删除存储过程 get_mgr_name，验证该对象确实删除
+DROP PROCEDURE get_mgr_name;
+SHOW PROCEDURE STATUS LIKE 'get_mgr_name'; -- Should return an empty result set
+
+删除存储函数 avg_salary，验证该对象确实删除
+DROP FUNCTION avg_salary;
+SHOW FUNCTION STATUS LIKE 'avg_salary'; -- Should return an empty result set
+
+将上面的 SQL 代码放到 02-sql 目录下的 14-procedure-function.sql 文件中
+
+提交代码仓库，推送到 bitbucket 远程代码仓库

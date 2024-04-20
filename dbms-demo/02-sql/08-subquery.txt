@@ -1,0 +1,114 @@
+查询工资比名为 Ellen 高的员工的名字和工资
+select first_name, salary 
+from employees
+where salary > (
+	select salary 
+	from employees
+	where first_name = "Ellen"
+);
+
+查询与编号为 141 的员工工种相同，比编号为 143 的员工月薪高的员工名字、工种编号和月薪
+select first_name, job_id, salary 
+from employees 
+where job_id = (
+	select job_id 
+	from employees 
+	where employee_id = 141
+) and salary > (
+	select salary
+	from employees 
+	where employee_id = 143
+);
+
+查询工资最少的员工的名字、工种和月薪
+select first_name, job_id, salary 
+from employees 
+where salary = (
+	select min(salary)
+	from employees
+);
+
+查询部门编号和该部门的最低月薪 min_salary，要求部门最低月薪大于 100 号部门的最低月薪
+select department_id, min(salary) as min_salary 
+from employees
+group by department_id
+having min_salary >= (
+	select min(salary)
+	from employees 
+	where department_id = 100
+);
+
+返回位置编号是 1400 和 1500 两个部门中的所有员工名字
+select e.first_name 
+from employees e 
+join departments d
+on e.department_id = d.department_id 
+where d.location_id = 1400 or d.location_id = 1500;
+
+查询其它工种中比 it_prog 工种中任一工资低的员工的员工编号、名字、工种和月薪
+select employee_id, first_name, job_id, salary 
+from employees 
+where salary < (
+	select max(salary)
+	from employees 
+	where job_id = "IT_Prog"
+	group by job_id
+) and job_id not like "it_prog";
+
+查询比 it_prog 工种所有工资都高的部门的部门编号和最低月薪
+
+查询员工编号最小并且工资最高的员工信息
+
+查询 employees 的部门编号和管理者编号在 departments 表中的员工名字，部门编号和管理者编号
+
+查询每个部门信息和该部门员工个数
+
+查询 90 编号的部门员工人数占公司总人数的比例，带百分号，小数点后保留一位
+
+查询部门编号、该部门的平均工资 average_salary 和工资等级，平均工资去掉小数部分
+
+查询有员工的部门名称
+
+查询和 Eleni 相同部门的员工名字和工资
+
+查询比公司平均工资高的员工的员工编号、名字和工资，并按工资升序排序
+
+查询各部门中工资比本部门平均工资高的员工的员工编号、名字和工资
+select employee_id, first_name, e.salary 
+from employees e
+join (
+	select avg(salary) salary, department_id
+	from employees 
+	group by department_id 
+)avg
+on e.department_id = avg.department_id
+where e.salary > avg.salary;
+ 
+查询和名字中包含字母 u 的员工在相同部门的员工的员工编号和名字
+
+查询在部门 location_id 为 1700 的部门工作的员工的员工编号
+
+查询员工名字和工资，这些员工的上司的名字是 Steven
+
+查询工资最高的员工的姓名 name，name = first_name, last_name
+
+查询工资最低的员工的名字和工资
+
+查询平均工资最低的部门信息
+
+查询平均工资最低的部门信息和该部门的平均工资
+
+查询平均工资最高的 job 信息
+
+查询平均工资高于公司平均工资的部门有哪些
+
+查询所有管理者的详细信息
+
+查询各个部门中最高工资中最低的那个部门的最低工资是多少
+
+查询平均月薪最高的部门的管理者的名字、部门编号、邮箱和月薪
+
+将上面的 SQL 代码放到 02-sql 目录下的 08-subquery.sql 文件中
+
+提交代码仓库，推送到 bitbucket 远程代码仓库
+Unknown column 'min_salary' in 'where clause'

@@ -1,0 +1,9 @@
+git init
+git status
+git add --all
+git status
+git commit -m "SQL作业练习"
+git remote rm origin
+git remote add origin https://github.com/AlexRed123/SQL
+git push -u origin main
+

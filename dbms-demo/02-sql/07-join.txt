@@ -1,0 +1,264 @@
+下载 join.sql 脚本文件，wget http://sample.wangding.co/dbms/join.sql
+
+join_demo 示例数据库安装的方式，参考安装 northwind 数据库
+
+join_demo 示例数据库的三个表，内容如下：
+
+         tb_a                 tb_b                  tb_c
++------+------+------+   +------+------+   +------+------+------+
+| c1   | c2   | c3   |   | c1   | c2   |   | c1   | c4   | c3   |
++------+------+------+   +------+------+   +------+------+------+
+| a    | x1   |    1 |   |  1   | y1   |   |  1   | x1   | a    |
+| b    | x2   |    2 |   |  2   | y2   |   |  2   | x2   | b    |
+| c    | x3   |    3 |   |  4   | y3   |   |  3   | x3   | c    |
++------+------+------+   +------+------+   +------+------+------+
+
+在 tb_a 和 tb_b 表上做内连接、左外连接、右外连接、全外连接、笛卡尔积和交叉连接
+select * from tb_a as a inner join tb_b as b on a.c3 = b.c1;
+select * from tb_a as a left outer join tb_b as b on a.c3 = b.c1;
+select * from tb_a as a right outer join tb_b as b on a.c3 = b.c1;
+# select * from tb_a as a full outer join tb_b as b on a.c3 = b.c1;
+select * from tb_a as a left outer join tb_b as b on a.c3 = b.c1 union select * from tb_a as a right outer join tb_b as b on a.c3 = b.c1;
+select * from tb_a as a, tb_b as b;
+select * from tb_a as a cross join tb_b as b;
+
+在 tb_b 和 tb_c 表上做自然连接
+select * from tb_b as b natural join tb_c as c;
+
+参考下图，在 tb_a 和 tb_b 表上完成七种连接操作七种 SQL 连接
+select * from tb_a a left join tb_b b on a.c3 = b.c1;
+select * from tb_a a left join tb_b b on a.c3 = b.c1 where b.c1 is null;
+select * from tb_a a right join tb_b b on a.c3 = b.c1;
+select * from tb_a a right join tb_b b on a.c3 = b.c1 where a.c3 is null;
+select * from tb_a a inner join tb_b b on a.c3 = b.c1;
+select * from tb_a a left join tb_b b on a.c3 = b.c1 union select * from tb_a a right join tb_b b on a.c3 = b.c1;
+select * from tb_a a left join tb_b b on a.c3 = b.c1 where b.c1 is null union select * from tb_a a right join tb_b b on a.c3 = b.c1 where a.c3 is null;
+
+下面的查询可能涉及到 employees 表，departments 表和 locations 表，他们之间的关系见下图northwind E-R 图
+use northwind;
+
+查询员工名字和所在部门的名称
+select e.first_name, d.department_name 
+from employees as e 
+join departments as d 
+on e.department_id = d.department_id;
+
+查询员工名字、工种编号和工种名称
+select e.first_name, j.job_id, j.job_title 
+from employees as e 
+join jobs as j 
+on e.job_id = j.job_id;
+
+查询有提成员工的员工名字、部门名称和提成
+select e.first_name, d.department_name, e.commission_pct 
+from employees as e 
+join departments as d
+on e.department_id = d.department_id
+where e.commission_pct is not null;
+
+查询所在城市名中第二个字符为 o 的部门名称和城市名
+select d.department_name, l.city 
+from departments as d
+join locations as l
+on d.location_id = l.location_id
+where l.city like '_o%';
+
+查询城市名称和该城市拥有的部门数量，过滤没有部门的城市
+select l.city, count(*)
+from departments as d
+join locations as l
+on d.location_id = l.location_id
+group by l.city;
+
+查询有提成的部门，部门名称、部门的领导编号和部门的最低工资 min_salary
+select department_name, d.manager_id, min(e.salary) min_salary
+from departments as d
+join employees as e
+on d.department_id = e.department_id
+where e.commission_pct is not null
+group by d.department_name, d.manager_id;
+
+查询每个工种的工种名称和员工人数，并且按员工人数降序排序
+select j.job_title, count(*) 
+from employees e
+join jobs j
+on e.job_id = j.job_id
+group by job_title
+order by count(*) desc;
+
+查询员工名字、部门名称和所在的城市，并按部门名称降序排序
+select first_name, d.department_name, l.city 
+from employees e
+join departments as d
+on e.department_id = d.department_id
+join locations as l
+on d.location_id = l.location_id 
+order by d.department_name desc;
+
+查询员工的工资和工资级别
+select salary, 
+case 
+when salary <= 40000 and salary >= 25000 then 'F'
+when salary >= 15000 then 'E'
+when salary >= 10000 then 'D'
+when salary >= 6000 then 'C'
+when salary >= 3000 then 'B'
+when salary >= 1000 then 'A'
+else null
+end as grade
+from employees;
+
+查询员工编号、员工名字、上司编号和名字
+select e.employee_id, e.first_name, e.manager_id, m.first_name as manager_name
+from employees e
+join employees m
+on e.manager_id = m.employee_id;
+
+查询 90 号部门员工的工种编号和位置编号
+select j.job_id, l.location_id
+from employees e
+join departments d 
+on e.department_id = d.department_id
+join jobs j
+on e.job_id = j.job_id
+join locations l
+on d.location_id = l.location_id
+where e.department_id = 90;
+
+查询有提成的员工，员工名字、部门名称、位置编号和城市
+select e.first_name, d.department_name, d.location_id, l.city
+from employees e
+join departments d 
+on e.department_id = d.department_id
+join locations l
+on d.location_id = l.location_id
+where e.commission_pct is not null;
+
+查询在 toronto 市工作的员工，员工名字、工种编号、部门编号和部门名称
+select e.first_name, j.job_id, d.department_id, d.department_name
+from employees e
+join departments d 
+on e.department_id = d.department_id
+join jobs j
+on e.job_id = j.job_id
+join locations l
+on d.location_id = l.location_id
+where l.city = 'toronto';
+
+查询每个部门的部门名称、工种名称、该工种的最低工资
+select d.department_name, j.job_title, j.min_salary
+from employees e
+join departments d 
+on e.department_id = d.department_id
+join jobs j
+on e.job_id = j.job_id
+group by d.department_name, j.job_title, j.min_salary;
+
+查询拥有部门数量大于 2 的国家，国家编号和部门数量
+select country_id, count(*) as department_count 
+from departments d
+left join locations l 
+on d.location_id = l.location_id
+group by country_id
+having department_count > 2;
+
+查询名为 Lisa 的员工，员工编号、其上司编号和名字
+select e.employee_id, e.manager_id, m.first_name 
+from employees e 
+join employees m 
+on e.manager_id = m.employee_id 
+where e.first_name like "Lisa";
+
+查询没有部门的城市
+select city 
+from departments d
+right join locations l
+on d.location_id = l.location_id
+where d.department_name is null
+group by city;
+
+查询任职部门名为 sal 和 it 的员工信息
+select * 
+from employees e
+join departments d
+on e.department_id = d.department_id
+where d.department_name like "sal%" or d.department_name like "it%";
+
+查询名字中包含 e 的员工，其名字和工种名称
+select first_name, job_title 
+from employees e
+join jobs j
+on e.job_id = j.job_id
+where e.first_name like "%e%";
+
+查询拥有部门数量大于 3 的城市，城市名和部门数量
+select city, count(*) as department_count 
+from departments d 
+left join locations l 
+on d.location_id = l.location_id
+group by l.location_id
+having department_count > 3;
+
+查询员工人数大于 10 的部门，部门名称和员工人数，并按人数降序排序
+select department_name, count(*) as count 
+from employees e
+join departments d
+on e.department_id = d.department_id
+group by d.department_name 
+having count > 10
+order by count desc;
+
+查询员工名字、部门名称、工种名称，并按部门名称降序排序
+select e.first_name, d.department_name, j.job_title 
+from employees e
+join departments d
+on e.department_id = d.department_id
+join jobs j
+on e.job_id = j.job_id
+order by d.department_name;
+
+查询员工的工资和工资级别
+select salary, 
+case 
+when salary <= 40000 and salary >= 25000 then 'F'
+when salary >= 15000 then 'E'
+when salary >= 10000 then 'D'
+when salary >= 6000 then 'C'
+when salary >= 3000 then 'B'
+when salary >= 1000 then 'A'
+else null
+end as grade
+from employees;
+
+查询工资级别和该级别的员工人数，不包括人数小于 20 的工资级别
+select 
+case 
+when salary <= 40000 and salary >= 25000 then 'F'
+when salary >= 15000 then 'E'
+when salary >= 10000 then 'D'
+when salary >= 6000 then 'C'
+when salary >= 3000 then 'B'
+when salary >= 1000 then 'A'
+else null
+end as grade, count(*) as count
+from employees
+group by grade
+having count >= 20;
+
+查询所有员工的名字和所属部门的名称
+select first_name, department_name 
+from employees e
+join departments d
+on e.department_id = d.department_id;
+
+查询所有部门的名称以及该部门的平均工资 average_salary （不要小数部分），并按平均工资降序排序
+select department_name, truncate(avg(salary),0) as average_salary
+from employees e
+right join departments d
+on e.department_id = d.department_id
+group by department_name
+order by average_salary desc;
+
+将上面的 SQL 代码放到 02-sql 目录下的 07-join.sql 文件中
+
+提交代码仓库，推送到 bitbucket 远程代码仓库

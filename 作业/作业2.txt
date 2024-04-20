@@ -1,0 +1,17 @@
+select department_id, job_id, min(salary) as min_salary
+from employees
+group by department_id, job_id
+order by min_salary desc;
+
+select department_id, job_id, min(salary) as min_salary from employees group by department_id, job_id order by min_salary desc;
+
+select job_id, sum(salary) as sum_salary, avg(salary) as avg_salary, max(salary) as max_salary, min(salary) as min_salary  
+from employees 
+where commission_pct is not null 
+group by job_id 
+having max_salary > 6000 
+order by max_salary asc;
+
+select job_id, sum(salary) as sum_salary, avg(salary) as avg_salary, max(salary) as max_salary, min(salary) as min_salary from employees where commission_pct is not null group by job_id having max_salary > 6000 order by max_salary asc;
+
+
